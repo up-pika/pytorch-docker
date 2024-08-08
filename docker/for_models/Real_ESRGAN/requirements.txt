@@ -1,0 +1,12 @@
+# numpy
+yapf==0.31.0
+basicsr==1.4.2
+facexlib==0.2.5
+Pillow
+matplotlib==3.7.5
+rich==13.7.1
+termcolor==2.4.0
+requests==2.32.3
+opencv-python==4.5.3.56
+PyYAML==5.4.1
+tqdm==4.62.2

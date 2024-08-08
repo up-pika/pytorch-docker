@@ -1,0 +1,1 @@
+本文件夹用于给ubuntu系统镜像附加安装miniconda
