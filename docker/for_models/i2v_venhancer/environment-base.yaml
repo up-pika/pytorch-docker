@@ -1,4 +1,4 @@
-name: i2v
+name: py3_10
 channels:
   - pytorch
   - nvidia
