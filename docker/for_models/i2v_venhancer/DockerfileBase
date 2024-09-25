@@ -1,0 +1,52 @@
+# 基础镜像 
+FROM eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/task-executor/pytorch:2.3.1-py3.10.11-cuda11.8.0-devel-ubuntu22.04
+
+# 设置DEBIAN_FRONTEND为非交互模式  
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 变量
+ARG ENV_NAME=py3_10
+ARG ENV_FILE=environment-base.yaml
+
+ENV ENV_NAME=${ENV_NAME}  
+# 测试环境变量是否成功
+# RUN echo "conda activate ${ENV_NAME}"
+
+WORKDIR /app
+
+COPY ${ENV_FILE} /app/environment-base.yaml
+
+RUN python -V && \
+    apt update && \
+    apt install -y \
+    vim \
+    curl \
+    build-essential \
+    git \
+    cmake \
+    ffmpeg \
+    libsm6 \
+    libxext6 && \
+    wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh && \
+    bash Miniconda3-py310_23.5.2-0-Linux-x86_64.sh -b -p /opt/miniconda && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+# 切换到 Bash  
+SHELL ["/bin/bash", "-c"] 
+
+ENV PATH=/opt/miniconda/bin:$PATH
+
+RUN conda update -n base -c defaults conda && \
+    conda env create -f /app/environment-base.yaml
+RUN conda init bash
+RUN conda activate ${ENV_NAME} & \
+    python -c "import torch" & \
+    python -V
+ENV PATH=/opt/miniconda/envs/${ENV_NAME}/bin:$PATH
+
+RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc \
+    && . ~/.bashrc \
+    && python -V \
+    && pip list
+
+CMD ["/bin/bash"]
