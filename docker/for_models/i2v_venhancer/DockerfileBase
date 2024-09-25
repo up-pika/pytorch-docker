@@ -16,9 +16,9 @@ WORKDIR /app
 
 COPY ${ENV_FILE} /app/environment-base.yaml
 
-RUN python -V && \
-    apt update && \
-    apt install -y \
+RUN python -V \
+    && apt update \
+    && apt install -y \
     vim \
     curl \
     build-essential \
@@ -26,25 +26,32 @@ RUN python -V && \
     cmake \
     ffmpeg \
     libsm6 \
-    libxext6 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh && \
-    bash Miniconda3-py310_23.5.2-0-Linux-x86_64.sh -b -p /opt/miniconda && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+    libxext6 \
+    && wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh \
+    && bash Miniconda3-py310_23.5.2-0-Linux-x86_64.sh -b -p /opt/conda \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm Miniconda3-py310_23.5.2-0-Linux-x86_64.sh \ 
+    && /opt/conda/bin/conda init bash
+
 # 切换到 Bash  
 SHELL ["/bin/bash", "-c"] 
 
-ENV PATH=/opt/miniconda/bin:$PATH
+ENV PATH=/opt/conda/bin:$PATH
 
-RUN conda update -n base -c defaults conda && \
-    conda env create -f /app/environment-base.yaml
-RUN conda init bash
+# 创建 Conda 环境  
+# RUN /opt/conda/bin/conda update -n base -c defaults conda && \
+RUN /opt/conda/bin/conda env create -f /app/environment-base.yaml
+
+# RUN /opt/conda/bin/conda create --name py3_10 python=3.10 -y  
+
 RUN conda activate ${ENV_NAME} & \
     python -c "import torch" & \
     python -V
-ENV PATH=/opt/miniconda/envs/${ENV_NAME}/bin:$PATH
 
-RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc \
+ENV PATH=/opt/conda/envs/${ENV_NAME}/bin:$PATH
+
+RUN echo "source /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
+    && echo "conda activate ${ENV_NAME}" >> ~/.bashrc \ 
     && . ~/.bashrc \
     && python -V \
     && pip list
