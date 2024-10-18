@@ -5,6 +5,8 @@ python generate_build_script.py --os ubuntu --os-version 22.04 --python 3.10.11 
 
 docker tag cnstark/pytorch:2.0.0-py3.9.12-cuda11.8.0-ubuntu20.04 eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/task-executor/pytorch:2.0.0-py3.9.12-cuda11.8.0-ubuntu20.04
 
+docker tag cnstark/pytorch:2.3.1-py3.10.11-cuda11.8.0-devel-ubuntu22.04  eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/task-executor/pytorch:2.3.1-py3.10.11-cuda11.8.0-devel-ubuntu22.04
+
 docker push eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/task-executor/pytorch:2.0.0-py3.9.12-cuda11.8.0-ubuntu20.04
 
 # 基于基础镜像添加conda

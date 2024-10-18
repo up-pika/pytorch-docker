@@ -1,0 +1,67 @@
+# Use the official Ubuntu base image
+FROM ubuntu:latest
+
+WORKDIR /app
+
+# Set environment variables to non-interactive to avoid prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update the package list and install necessary packages
+RUN apt update && \
+    apt install -y \
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt update && \
+    apt install -y \
+    python3.10 \
+    python3.10-venv \
+    python3.10-distutils \
+    python3-pip \
+    wget \
+    git \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*  && \
+    apt-get update  && \
+    apt-get install -y libreoffice
+
+# Set Python 3.10 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+
+# Create a virtual environment for MinerU
+RUN python3 -m venv /opt/mineru_venv
+
+COPY requirements.txt /app/requirements.txt
+
+# Activate the virtual environment and install necessary Python packages
+RUN /bin/bash -c "source /opt/mineru_venv/bin/activate && \
+    pip3 install --upgrade pip && \
+    pip3 install -U magic-pdf[full] --extra-index-url https://wheels.myhloli.com -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 uninstall -y paddlepaddle && \
+    pip3 uninstall -y paddlepaddle-gpu && \
+    pip3 install paddlepaddle-gpu==3.0.0b1 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/ && \
+    pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple"
+
+# Resolve the issue of running a single DPU paddle
+RUN cp -r /opt/mineru_venv/lib/python3.10/site-packages/paddleocr /opt/mineru_venv/lib/python3.10/site-packages/magic_pdf/model/
+RUN sed -i 's|from paddleocr|from ..paddleocr|g' /opt/mineru_venv/lib/python3.10/site-packages/magic_pdf/model/pek_sub_modules/self_modify.py
+RUN sed -i 's|from paddleocr|from .paddleocr|g' /opt/mineru_venv/lib/python3.10/site-packages/magic_pdf/model/ppTableModel.py
+
+
+# Copy the configuration file template and set up the model directory
+COPY magic-pdf.template.json /root/magic-pdf.json
+
+# Set the models directory in the configuration file (adjust the path as needed)
+RUN sed -i 's|/tmp/models|/opt/models|g' /root/magic-pdf.json
+
+# Create the models directory
+RUN mkdir -p /opt/models
+
+# Set the entry point to activate the virtual environment and run the command line tool
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/mineru_venv/bin/activate && exec \"$@\"", "--"]
+
+# # Copy project
+# COPY . /app
+
+# Run app
+CMD ["python3", "app.py"]

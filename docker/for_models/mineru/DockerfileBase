@@ -1,0 +1,34 @@
+# Use the official Ubuntu base image
+FROM eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/opendatalab-mineru-svc-base:v01
+
+WORKDIR /app
+
+# Set environment variables to non-interactive to avoid prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY requirements.txt /app/requirements.txt
+COPY magic_pdf-0.6.1-py3-none-any.whl /app/magic_pdf-0.6.1-py3-none-any.whl
+
+# Activate the virtual environment and install necessary Python packages
+RUN /bin/bash -c "source /opt/mineru_venv/bin/activate && \
+    pip3 install --upgrade pip && \
+    pip3 install magic_pdf-0.6.1-py3-none-any.whl[full] detectron2 --extra-index-url https://myhloli.github.io/wheels/ -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple"
+
+# Copy the configuration file template and set up the model directory
+COPY magic-pdf.template.json /root/magic-pdf.json
+
+# Set the models directory in the configuration file (adjust the path as needed)
+RUN sed -i 's|/tmp/models|/opt/models|g' /root/magic-pdf.json
+
+# Create the models directory
+RUN mkdir -p /opt/models
+
+# Set the entry point to activate the virtual environment and run the command line tool
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/mineru_venv/bin/activate && exec \"$@\"", "--"]
+
+# Copy project
+COPY . /app
+
+# Run app
+CMD ["python3", "app.py"]
