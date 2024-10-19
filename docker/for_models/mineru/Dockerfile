@@ -48,11 +48,11 @@ RUN sed -i 's|from paddleocr|from ..paddleocr|g' /opt/mineru_venv/lib/python3.10
 RUN sed -i 's|from paddleocr|from .paddleocr|g' /opt/mineru_venv/lib/python3.10/site-packages/magic_pdf/model/ppTableModel.py
 
 
-# Copy the configuration file template and set up the model directory
-COPY magic-pdf.template.json /root/magic-pdf.json
+# # Copy the configuration file template and set up the model directory
+# COPY magic-pdf.json /root/magic-pdf.json
 
-# Set the models directory in the configuration file (adjust the path as needed)
-RUN sed -i 's|/tmp/models|/opt/models|g' /root/magic-pdf.json
+# # Set the models directory in the configuration file (adjust the path as needed)
+# RUN sed -i 's|/tmp/models|/opt/models|g' /root/magic-pdf.json
 
 # Create the models directory
 RUN mkdir -p /opt/models

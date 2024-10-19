@@ -1,5 +1,5 @@
 # Use the official Ubuntu base image
-FROM eng-center-registry.cn-shanghai.cr.aliyuncs.com/cloud/opendatalab-mineru-svc-base:v01
+FROM eng-center-registry-vpc.cn-shanghai.cr.aliyuncs.com/cloud/opendatalab-mineru-svc-base:v01
 
 WORKDIR /app
 
