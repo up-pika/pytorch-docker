@@ -18,6 +18,7 @@ RUN apt update && \
     python3.10-distutils \
     python3-pip \
     wget \
+    vim \
     git \
     libgl1 \
     libglib2.0-0 \
