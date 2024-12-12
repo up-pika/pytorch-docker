@@ -33,12 +33,12 @@ ENV PATH=/miniconda3/bin:$PATH
 
 RUN conda env create -f /app/envBase.yaml
 RUN conda init bash
-RUN conda activate model & \
+RUN conda activate menv & \
     python -c "import torch" & \
     python -V 
-ENV PATH=/miniconda3/envs/model/bin:$PATH
+ENV PATH=/miniconda3/envs/menv/bin:$PATH
 
-RUN echo "conda activate model" >> ~/.bashrc \
+RUN echo "conda activate menv" >> ~/.bashrc \
     && . ~/.bashrc \
     && python -V 
 

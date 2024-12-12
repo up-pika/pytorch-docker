@@ -5,8 +5,13 @@ from argparse import ArgumentParser
 # {
 #    "pytorch_version": {
 #       "cuda_version": [
-#           "pytorch_version", "cuda_version", "torchvision_version", "cuda_version",
-#           "torchaudio_version", "cuda_version", "url"
+#           "pytorch_version",
+#           "cuda_version",
+#           "torchvision_version",
+#           "cuda_version",
+#           "torchaudio_version",
+#           "cuda_version",
+#           "url"
 #       ],
 #    }
 # }

@@ -1,4 +1,4 @@
-# 产生build 脚本
+# 产生 build 脚本
 
 python generate_build_script.py --os ubuntu --os-version 22.04 --python 3.10.11 --pytorch 2.3.1 --cuda 11.8 --cuda-flavor devel
 将产生sh和pytorch-docker/.github/workflows/docker_build_2.3.1_py3.10.11_cuda11.8.0_devel_ubuntu22.04.yml

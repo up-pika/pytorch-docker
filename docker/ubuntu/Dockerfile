@@ -4,10 +4,33 @@ FROM ${BASE_IMAGE}
 
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
 
+ENV TZ=Asia/Shanghai
+
+RUN apt update \
+    && apt install -y tzdata \
+    && ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone \
+    && dpkg-reconfigure --frontend noninteractive tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt update && \
     apt install -y \
-        wget build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
-        libreadline-dev libffi-dev libsqlite3-dev libbz2-dev liblzma-dev && \
+    net-tools \ 
+    wget \
+    vim \
+    git \
+    curl \
+    build-essential \
+    zlib1g-dev \
+    libncurses5-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    libssl-dev \
+    libreadline-dev \
+    libffi-dev \
+    libsqlite3-dev \
+    libbz2-dev \
+    liblzma-dev && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -35,22 +58,22 @@ ARG PYTORCH_DOWNLOAD_URL
 
 RUN if [ ! $TORCHAUDIO_VERSION ]; \
     then \
-        TORCHAUDIO=; \
+    TORCHAUDIO=; \
     else \
-        TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}${TORCHAUDIO_VERSION_SUFFIX}; \
+    TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}${TORCHAUDIO_VERSION_SUFFIX}; \
     fi && \
     if [ ! $PYTORCH_DOWNLOAD_URL ]; \
     then \
-        pip install \
-            torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-            torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-            ${TORCHAUDIO}; \
+    pip install \
+    torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
+    torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
+    ${TORCHAUDIO}; \
     else \
-        pip install \
-            torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-            torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-            ${TORCHAUDIO} \
-            -f ${PYTORCH_DOWNLOAD_URL}; \
+    pip install \
+    torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
+    torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
+    ${TORCHAUDIO} \
+    -f ${PYTORCH_DOWNLOAD_URL}; \
     fi && \
     rm -r /root/.cache/pip
 
