@@ -2,16 +2,15 @@ ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
 
-ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y tzdata \
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata
 ENV TZ=Asia/Shanghai
-
-RUN apt update \
-    && apt install -y tzdata \
-    && ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone \
-    && dpkg-reconfigure --frontend noninteractive tzdata \
-    && rm -rf /var/lib/apt/lists/*
 
 RUN apt update && \
     apt install -y \
@@ -56,25 +55,35 @@ ARG TORCHAUDIO_VERSION
 ARG TORCHAUDIO_VERSION_SUFFIX
 ARG PYTORCH_DOWNLOAD_URL
 
-RUN if [ ! $TORCHAUDIO_VERSION ]; \
-    then \
-    TORCHAUDIO=; \
-    else \
-    TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}${TORCHAUDIO_VERSION_SUFFIX}; \
-    fi && \
-    if [ ! $PYTORCH_DOWNLOAD_URL ]; \
-    then \
+
+RUN echo 'xixi' && \
     pip install \
-    torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-    torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-    ${TORCHAUDIO}; \
-    else \
-    pip install \
-    torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-    torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-    ${TORCHAUDIO} \
-    -f ${PYTORCH_DOWNLOAD_URL}; \
-    fi && \
-    rm -r /root/.cache/pip
+    torch==${PYTORCH_VERSION} \
+    torchvision==${TORCHVISION_VERSION} \
+    torchaudio==${TORCHAUDIO_VERSION} \
+    --index-url https://download.pytorch.org/whl/cu118 \
+    && rm -r /root/.cache/pip
+# RUN if [ ! $TORCHAUDIO_VERSION ]; \
+#     then \
+#     TORCHAUDIO=; \
+#     else \
+#     TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}; \
+#     fi && \
+#     if [ ! $PYTORCH_DOWNLOAD_URL ]; \
+#     then \
+#     pip install \
+#     torch==${PYTORCH_VERSION}\
+#     torchvision==${TORCHVISION_VERSION} \
+#     ${TORCHAUDIO}; \
+#     else \
+#     echo 'xixi' && \
+#     pip install \
+#     torch==${PYTORCH_VERSION} \
+#     torchvision==${TORCHVISION_VERSION} \
+#     ${TORCHAUDIO} \
+#     --index-url https://download.pytorch.org/whl/cu118 \
+#     -f ${PYTORCH_DOWNLOAD_URL}; \
+#     fi && \
+#     rm -r /root/.cache/pip
 
 WORKDIR /workspace
